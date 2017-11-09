@@ -1,10 +1,11 @@
 import atexit
 import pymongo
+import json
 from bson import json_util
+from functools import partial
 from flask import Flask, request
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from functools import partial
 from utils import parse_yml, create_db_object
 
 app = Flask(__name__)
@@ -20,7 +21,7 @@ elements = db.elements
 urls = parse_yml('config.yml', 'urls')
 
 # database removing in case of debugging:
-# client.drop_database(db)
+client.drop_database(db)
 
 
 def insert_url_in_db(url):
@@ -44,13 +45,25 @@ atexit.register(lambda: scheduler.shutdown())
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return "Hello, homework!"
 
 
-@app.route('/results', methods=['GET'])
+# retrieve complete collection
+@app.route('/results', methods=['GET'], endpoint="get")
 def get():
     if request.method == 'GET':
         cursor = db.elements.find()
+        return json_util.dumps(cursor)
+
+
+# retrieve document by url
+@app.route('/results-by-url', methods=['POST'], endpoint="post")
+def post():
+    data_dict = json.loads(request.data.decode("utf8"))
+    url = data_dict["url"]
+    print(url)
+    if request.method == 'POST':
+        cursor = db.elements.find({"url": url})
     return json_util.dumps(cursor)
 
 
