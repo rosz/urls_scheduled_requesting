@@ -21,7 +21,7 @@ elements = db.elements
 urls = parse_yml('config.yml', 'urls')
 
 # database removing in case of debugging:
-client.drop_database(db)
+# client.drop_database(db)
 
 
 def insert_url_in_db(url):
@@ -51,19 +51,19 @@ def hello_world():
 # retrieve complete collection
 @app.route('/results', methods=['GET'], endpoint="get")
 def get():
-    if request.method == 'GET':
-        cursor = db.elements.find()
-        return json_util.dumps(cursor)
+    cursor = db.elements.find()
+    return json_util.dumps(cursor)
 
 
 # retrieve document by url
 @app.route('/results-by-url', methods=['POST'], endpoint="post")
 def post():
+    if not json.loads(request.data.decode("utf8")):
+        raise ValueError("empty request body")
+
     data_dict = json.loads(request.data.decode("utf8"))
     url = data_dict["url"]
-    print(url)
-    if request.method == 'POST':
-        cursor = db.elements.find({"url": url})
+    cursor = db.elements.find({"url": url})
     return json_util.dumps(cursor)
 
 

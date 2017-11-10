@@ -2,6 +2,7 @@ import yaml
 import time
 import datetime
 import urllib.request
+from urllib.parse import urlparse
 
 # from urllib.parse import urlparse
 
@@ -17,6 +18,11 @@ def parse_yml(yml_file, key):
 
 
 def create_db_object(url):
+    # url validation
+    if not urlparse(url).scheme:
+        err = "invalid url"
+        raise ValueError(err)
+
     db_object = {}
     response_dict = {}
 
